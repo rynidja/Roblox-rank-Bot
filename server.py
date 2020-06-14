@@ -3,10 +3,10 @@ from flask import Flask, request
 import logging, bot
 
 cookie = ""# your cookie here
-groupId =  # your group id here
+groupId = None # your group id here(instead of "None")
 
-app = Flask(__name__)
 bot.main(cookie)
+app = Flask(__name__)
 
 @app.route("/bot/api", methods = ["GET"])
 def BotApi():
@@ -25,4 +25,4 @@ def BotApi():
 
 
 if __name__ == '__main__':
-	app.run()
+	app.run(host="0.0.0.0")
