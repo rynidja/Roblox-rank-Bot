@@ -1,5 +1,5 @@
 ## Roblox-rank-Bot
-#Roblox rank Bot written in python
+# Roblox rank Bot written in python
 
 1. How to use:
 	1. clone the repo into ex:glitch.com
