@@ -1,10 +1,25 @@
-# Roblox-rank-Bot
-Roblox rank Bot written in python
+## Roblox-rank-Bot
+#Roblox rank Bot written in python
 
-How to use:
-import the repository to glitch.com
-edit the server.py with your bot cookie and group id
+1. How to use:
+	1. clone the repo into ex:glitch.com
+	2. make your project private so no one steals your cookie
+	3. open a private browser window and connect to bot accont
+	4. get the cookie named : ".ROBLOSECURITY"
+	5. paste it into server.py[line:5]
+	6. Optional: put your group id in server.py[line:6]
+	7.
+		1. if you are not using glitch type the command in terminal "sh start.sh"
+		2. after library installing  complete bot should be prepared
+	8. Now you can use the api:
+		1. if you did instruction 6 :{ur url}/bot/ranker?userid= &rank = 
+		2. if you are using muliple groups or didn't do istruction 6 : {ur url}/bot/ranker?groupid= &userid= &rank = 
+	9. a "bot.log" file should appear you can use it to check bot logs or delete it[may take an extra memory]
 
+2. Features comming soon:
+	1. "bot.log" auto delete after some time 
+	2. adding "setting.json"
+	3. adding "/Kick" api
+	4. ...
 
-The api will be:
-  {ur-url.com}/bot/api?userid = &rank=
+please if you find any bug report it to me.
