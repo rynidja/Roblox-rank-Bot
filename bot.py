@@ -1,14 +1,20 @@
 #created by rayane866(rynpix)
 import robloxapi, asyncio, logging
 
+
 async def get_info():
-	global bot_info, bot_id
+	global bot_info, bot_id, bot_name
 	bot_info = await bot.get_self()
 	bot_id = bot_info.id
+	bot_name = bot_info.name
 
 async def rank_main(groupid, userid, rank):
 	await asyncio.sleep(0.01)
-	group = await bot.get_group(groupid)
+	try:
+		group = await bot.get_group(groupid)
+	except:
+		logging.error(f"group:{groupid} is invalid.")
+		return None
 	
 	try:
 		bot_role = await group.get_role_in_group(bot_id)
@@ -40,7 +46,7 @@ async def rank_main(groupid, userid, rank):
 			break
 
 	if not bot_valid:
-		logging.warn(f"Bot is not a valid member the group:{groupid}")
+		logging.warn(f"Bot is not a valid member the group:{groupid}.")
 	else:
 		if not plr_valid:
 			if not userid != bot_id:
@@ -75,6 +81,12 @@ def main(cookie):
 	global loop, bot
 	logging.basicConfig(filename='bot.log', level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:%(message)s')
-	bot = robloxapi.Client(cookie)
-	loop = asyncio.get_event_loop()
-	loop.run_until_complete(get_info())
+	try:
+		bot = robloxapi.Client(cookie)
+		loop = asyncio.get_event_loop()
+		loop.run_until_complete(get_info())
+		print(f"Logged in as: {bot_name}")
+	except:
+		logging.error(f"invalid cookie: '{cookie}'")
+		print(f"invalid cookie: '{cookie}'")
+		print("Please enter a valid cookie and restart the server")
