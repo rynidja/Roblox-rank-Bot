@@ -1,6 +1,5 @@
 #created by rayane866(rynpix)
-import robloxapi, asyncio, logging
-
+import robloxapi, asyncio, logger_config
 
 async def get_info():
 	global bot_info, bot_id, bot_name
@@ -8,12 +7,12 @@ async def get_info():
 	bot_id = bot_info.id
 	bot_name = bot_info.name
 
-async def rank_main(groupid, userid, rank):
+async def rank_main(groupid:int, userid:int, rank:int):
 	await asyncio.sleep(0.01)
 	try:
 		group = await bot.get_group(groupid)
 	except:
-		logging.error(f"group:{groupid} is invalid.")
+		logger.error(f"group[{groupid}] is not valid.")
 		return None
 	
 	try:
@@ -44,49 +43,71 @@ async def rank_main(groupid, userid, rank):
 				break
 		else:
 			break
+	
+	user_info = await bot.get_user_by_id(userid)
+	user_name = user_info.name
 
 	if not bot_valid:
-		logging.warn(f"Bot is not a valid member the group:{groupid}.")
+		logger.warning(f"Bot is not a valid member the group[{groupid}].")
 	else:
 		if not plr_valid:
 			if not userid != bot_id:
-				logging.warn("Attempt to change bot rank.")
+				logger.warning("Attempt to change bot rank.")
 			elif user_in_group:
 				if not user_rank < bot_rank:
-					logging.warn(f"Attempt to change higher rank player:{userid} rank.")
+					logger.warning(f"Attempt to change higher rank player:{user_name}[{userid}] rank[{user_rank}].")
 			else:
-				logging.warn(f"User:{userid} is not valid member of the group:{groupid}.")
+				logger.warning(f"{user_name}[{userid}] is not valid member of the group[{groupid}].")
 
 		if not rank_valid:
 			if rank < 1 or rank > 255:
-				logging.warn(f"Rank:{rank} is not valid.")
+				logger.warning(f"Rank[{rank}] is not valid.")
 			elif not rank < bot_rank:
-				logging.warn(f"Attempt to change user:{userid} rank to bot's rank or higher rank:{rank}.")
+				logger.warning(f"Attempt to change {user_name}]{userid}] rank to bot's rank or higher rank[{rank}].")
 			else:
-				logging.warn(f"Rank:{rank} is not valid.")
+				logger.warning(f"Rank[{rank}] is not valid.")
 
 	if plr_valid and rank_valid and bot_valid:
-		await group.set_rank_by_id(userid, rank)
-		logging.info(f"Changed user:{userid} rank to :{rank} in group:{groupid}.")
+		await group.set_rank_by_id(userid, rank) 
+		await asyncio.sleep(0.01)
+
+		plr_grole = await group.get_role_in_group(userid)
+		plr_role = plr_grole.name
+		plr_rank = plr_grole.rank
+
+		if plr_rank == rank:
+			logger.info(f"successfully ranked {user_name}[{userid}] to {plr_role}[{rank}] in group[{groupid}].")
+		else:
+			logger.warning(f"Failed to rank {user_name}[{userid}] to [{rank}] in group[{groupid}].")
 	else:
-		logging.warn(f"Failed to change user:{userid} rank to :{rank} in group:{groupid}.")
+		logger.warning(f"Failed to rank {user_name}[{userid}] to [{rank}] in group[{groupid}].")
 
 
 
-def rank(groupid, userid, rank):
-	loop.run_until_complete(rank_main(groupid, userid, rank))
+def rank(groupid:int, userid:int, rank:int):
+	if (type(groupid) is int) and (type(userid) is int) and (type(rank) is int):
+		loop.run_until_complete(rank_main(groupid, userid, rank))
+	else:
+		if not groupid:
+			logger.warning(f"Invalid group id[{groupid}].")
+		if not userid:
+			logger.warning(f"Invalid userid[{userid}].")
+		if not rank:
+			logger.warning(f"Invalid rank[{rank}].")
 
-
-def main(cookie):
-	global loop, bot
-	logging.basicConfig(filename='bot.log', level=logging.DEBUG,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+def main(log_name, max_lines, cookie:str):
+	global logger, logged,loop, bot
+	logger_config.main(log_name, max_lines)
+	logger = logger_config.logger
 	try:
 		bot = robloxapi.Client(cookie)
+		logged = True
+	except:
+		logged = False
+		logger.error(f"invalid cookie: '{cookie}'")
+
+	if logged:
 		loop = asyncio.get_event_loop()
 		loop.run_until_complete(get_info())
-		print(f"Logged in as: {bot_name}")
-	except:
-		logging.error(f"invalid cookie: '{cookie}'")
-		print(f"invalid cookie: '{cookie}'")
-		print("Please enter a valid cookie and restart the server")
+		logger.info(f"Logged in as: {bot_name}")
+	logger_config.log_list = []
