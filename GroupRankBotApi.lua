@@ -20,7 +20,7 @@ function get_output(output)
 		elseif level == "WARNING" then
 			warn(msg)
 		elseif level == "ERROR" then
-			print("Ceck out "..GroupRankBot.url.."/bot/rank for the log")
+			print("Ceck out "..GroupRankBot.url.."/bot/log for the log")
 			error(msg)
 		end
 	end
