@@ -29,12 +29,8 @@
 
 3. New features:
 	1. log improved, added settings and download
-	2. in roblox studio debugging
+	2. in roblox studio improved debugging
 	3. running on a WSGI server
-
-4. Features comming soon:
-	1. adding "/promote" and "/demote"
-	2. improving roblox lua bot api
 
 
 please if you find any bug report it to me.
