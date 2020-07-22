@@ -29,7 +29,7 @@
 
 3. New features:
 	1. log improved, added settings and download
-	2. in roblox studio debugging
+	2. in roblox studio improved debugging
 	3. running on a WSGI server
 
 
