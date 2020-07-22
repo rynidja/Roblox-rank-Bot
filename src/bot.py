@@ -24,8 +24,8 @@ async def bot_group_info(groupid):
             return False, None, None
     except robloxapi.utils.errors.BadStatus:
             logger.warning(f"Failed to load group[{groupid}]")
-            logger.info(f"Retrying to load group[{groupid}]")
             await asyncio.sleep(0.01)
+            logger.info(f"Retrying to load group[{groupid}]")
             return await bot_group_info(groupid)
     
 async def user_check(group, userid, bot_rank):
