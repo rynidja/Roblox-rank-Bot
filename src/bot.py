@@ -2,7 +2,7 @@
 import robloxapi, asyncio, logger_config
 
 async def get_info():
-    ''' etting bot's info'''
+    '''Getting bot's info'''
     global bot_info, bot_id, bot_name
     bot_info = await bot.get_self()
     bot_id = bot_info.id
@@ -55,6 +55,7 @@ async def user_check(group, userid, bot_rank, rankChange=None):
     return False, None, None, None
 
 async def mote_check(groupid, userid):
+    '''Do checks for remote and demote funcions'''
     await asyncio.sleep(0.01)
     stat, group, bot_rank = await bot_group_info(groupid)
     plr_valid = False
