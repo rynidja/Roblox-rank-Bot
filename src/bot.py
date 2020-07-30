@@ -58,7 +58,7 @@ async def mote_check(groupid, userid):
     '''Do checks for remote and demote funcions'''
     await asyncio.sleep(0.01)
     stat, group, bot_rank = await bot_group_info(groupid)
-    plr_valid = False
+    plr_valid, plr_rank, roles = False, None, None
 
     if stat:
         plr_valid, plr_name, plr_rank, _ = await user_check(group, userid, bot_rank)        
