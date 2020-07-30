@@ -1,0 +1,3 @@
+gevent
+flask
+git+git://github.com/rynpix/robloxapi.git@roblox-rank-bot-Stable

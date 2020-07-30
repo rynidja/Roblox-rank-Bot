@@ -2,14 +2,14 @@
 import robloxapi, asyncio, logger_config
 
 async def get_info():
-    ''' Getting bot's info '''
+    ''' etting bot's info'''
     global bot_info, bot_id, bot_name
     bot_info = await bot.get_self()
     bot_id = bot_info.id
     bot_name = bot_info.name
 
 async def bot_group_info(groupid):
-    ''' Check if bot is a valid member of the group and if group exists. '''
+    '''Check if bot is a valid member of the group and if group exists.'''
     try:
         group = await bot.get_group(groupid)
         try:
@@ -28,8 +28,8 @@ async def bot_group_info(groupid):
             logger.info(f"Retrying to load group[{groupid}]")
             return await bot_group_info(groupid)
     
-async def user_check(group, userid, bot_rank):
-    ''' Check if the user is a valid member of the group and get his info '''
+async def user_check(group, userid, bot_rank, rankChange=None):
+    '''Check if the user is a valid member of the group and get his info'''
     user_info = await bot.get_user_by_id(userid)
     if user_info:
         async for member in group.get_members():
@@ -39,19 +39,42 @@ async def user_check(group, userid, bot_rank):
                 if userid != bot_id:
                     if user_rank < bot_rank :
                         return True, user_info.name, user_rank, user_grole.name
-                    else:
-                        logger.warning(f"Attempt to change higher rank player:{user_info.name}[{userid}] rank[{user_rank}].")
-                        return False, user_info.name, user_rank, user_grole.name
+                    elif not rankChange:
+                        logger.warning(f"Attempt to change a higher rank player:{user_info.name}[{userid}] rank[{user_rank}].")
+                    elif rankChange:
+                        logger.warning(f"Attempt to Kick a higher rank player:{user_info.name}[{userid}] rank[{user_rank}].")
+                    return False, user_info.name, user_rank, user_grole.name
+
                 elif userid == bot_id:
-                    logger.warning("Attempt to change bot rank.")
+                    if not rankChange:
+                        logger.warning("Attempt to change bot rank.")
                     return False, user_info.name, user_rank, user_grole.name
         logger.warning(f"{user_info.name}[{userid}] is not valid member of the group[{group.id}].")
         return False, user_info.name, None, None
     logger.warning(f"Invalid user [{userid}].")
     return False, None, None, None
 
+async def mote_check(groupid, userid):
+    await asyncio.sleep(0.01)
+    stat, group, bot_rank = await bot_group_info(groupid)
+    plr_valid = False
+
+    if stat:
+        plr_valid, plr_name, plr_rank, _ = await user_check(group, userid, bot_rank)        
+        groles = await group.get_group_roles()
+        roles={role.name : role.rank for role in groles}
+    else:
+        user_info = await bot.get_user_by_id(userid)
+        if user_info:
+            plr_name = user_info.name
+        else:
+            logger.warning(f"Invalid user [{userid}].")
+            plr_name = None
+
+    return stat, group, plr_valid, plr_name, plr_rank, roles
+
 async def rank_main(groupid:int, userid:int, rank:int):
-    ''' rank func main '''
+    '''rank func main'''
     await asyncio.sleep(0.01)
     stat, group, bot_rank = await bot_group_info(groupid)
     plr_valid = False
@@ -96,22 +119,9 @@ async def rank_main(groupid:int, userid:int, rank:int):
         logger.warning(f"Failed to rank {plr_name}[{userid}] to [{rank}] in group[{groupid}].")
 
 async def promote_main(groupid, userid):
-    """ Promote main """
+    """Promote main"""
     await asyncio.sleep(0.01)
-    stat, group, bot_rank = await bot_group_info(groupid)
-    plr_valid = False
-
-    if stat:
-        plr_valid, plr_name, plr_rank, _ = await user_check(group, userid, bot_rank)        
-        groles = await group.get_group_roles()
-        roles={role.name : role.rank for role in groles}
-    else:
-        user_info = await bot.get_user_by_id(userid)
-        if user_info:
-            plr_name = user_info.name
-        else:
-            logger.warning(f"Invalid user [{userid}].")
-            plr_name = None
+    stat, group, plr_valid, plr_name, plr_rank, roles = await mote_check(groupid, userid)
 
     if stat and plr_valid:
         try:
@@ -124,22 +134,9 @@ async def promote_main(groupid, userid):
         logger.warning(f"Failed to promote {plr_name}[{userid}] in group[{groupid}].")
 
 async def demote_main(groupid, userid):
-    """ Demote main """
+    """Demote main"""
     await asyncio.sleep(0.01)
-    stat, group, bot_rank = await bot_group_info(groupid)
-    plr_valid = False
-
-    if stat:
-        plr_valid, plr_name, plr_rank, _ = await user_check(group, userid, bot_rank)        
-        groles = await group.get_group_roles()
-        roles={role.name : role.rank for role in groles}
-    else:
-        user_info = await bot.get_user_by_id(userid)
-        if user_info:
-            plr_name = user_info.name
-        else:
-            logger.warning(f"Invalid user [{userid}].")
-            plr_name = None
+    stat, group, plr_valid, plr_name, plr_rank, roles = await mote_check(groupid, userid)
 
     if stat and plr_valid:
         try:
@@ -152,7 +149,7 @@ async def demote_main(groupid, userid):
         logger.warning(f"Failed to demote {plr_name}[{userid}] in group[{groupid}].")
 
 def rank(groupid=None, userid=None, rank=None):
-    """ Ranking func """
+    """Ranking func"""
     if (type(groupid) is int) and (type(userid) is int) and (type(rank) is int):
         loop.run_until_complete(rank_main(groupid, userid, rank))
     else:
@@ -164,7 +161,7 @@ def rank(groupid=None, userid=None, rank=None):
             logger.warning(f"Invalid rank[{rank}].")
 
 def promote(groupid=None, userid=None):
-    """ Promote func """
+    """Promote func"""
     if (type(groupid) is int) and (type(userid) is int):
         loop.run_until_complete(promote_main(groupid, userid))
     else:
@@ -174,7 +171,7 @@ def promote(groupid=None, userid=None):
             logger.warning(f"Invalid userid[{userid}].")
 
 def demote(groupid=None, userid=None):
-    """ Demote func """
+    """Demote func"""
     if (type(groupid) is int) and (type(userid) is int):
         loop.run_until_complete(demote_main(groupid, userid))
     else:
@@ -184,7 +181,7 @@ def demote(groupid=None, userid=None):
             logger.warning(f"Invalid userid[{userid}].")
 
 def main(log_name, max_lines, cookie:str):
-    """ The main func"""
+    """The main func"""
     global logger, logged,loop, bot
     logger_config.main(log_name, max_lines)
     logger = logger_config.logger
